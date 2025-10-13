@@ -1,0 +1,9 @@
+dotnet add package MySql.Data
+dotnet add package BCrypt.Net-Next
+dotnet add package System.IdentityModel.Tokens.Jwt
+dotnet add package Swashbuckle.AspNetCore
+
+
+dotnet clean
+dotnet restore
+dotnet run
