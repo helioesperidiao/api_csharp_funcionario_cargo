@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/zRYCoEilqs=",
+  "dgSpecHash": "v47ZwO4orEo=",
   "success": true,
-  "projectFilePath": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\RestAPI.csproj",
+  "projectFilePath": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\helio\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\helio\\.nuget\\packages\\bouncycastle.cryptography\\2.3.1\\bouncycastle.cryptography.2.3.1.nupkg.sha512",

@@ -4242,9 +4242,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\RestAPI.csproj",
+      "projectUniqueName": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\Api.csproj",
       "projectName": "Api",
-      "projectPath": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\RestAPI.csproj",
+      "projectPath": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\Api.csproj",
       "packagesPath": "C:\\Users\\helio\\.nuget\\packages\\",
       "outputPath": "D:\\professor\\2025\\CTI\\PAW\\4º Bimestre\\Aula 04x05 - Exemplo\\api_csharp_funcionario_cargo\\obj\\",
       "projectStyle": "PackageReference",
