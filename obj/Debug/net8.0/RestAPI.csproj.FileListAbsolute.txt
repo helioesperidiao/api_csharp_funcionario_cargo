@@ -657,3 +657,4 @@ D:\professor\2025\CTI\PAW\4º Bimestre\Aula 04x05 - Exemplo\api_csharp_funcionar
 D:\professor\2025\CTI\PAW\4º Bimestre\Aula 04x05 - Exemplo\api_csharp_funcionario_cargo\obj\Debug\net8.0\Api.pdb
 D:\professor\2025\CTI\PAW\4º Bimestre\Aula 04x05 - Exemplo\api_csharp_funcionario_cargo\obj\Debug\net8.0\RestAPI.genruntimeconfig.cache
 D:\professor\2025\CTI\PAW\4º Bimestre\Aula 04x05 - Exemplo\api_csharp_funcionario_cargo\obj\Debug\net8.0\ref\Api.dll
+D:\professor\2025\CTI\PAW\4º Bimestre\Aula 04x05 - Exemplo\api_csharp_funcionario_cargo\obj\Debug\net8.0\RestAPI.sourcelink.json

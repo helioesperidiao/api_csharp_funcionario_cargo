@@ -83,14 +83,8 @@ namespace Api.Control
 
             // Valida recebeValeTransporte
             int recebeValeTransporte = funcionarioElem.GetProperty("recebeValeTransporte").GetInt32();
-            if (recebeValeTransporte != 0 && recebeValeTransporte != 1)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "O campo 'recebeValeTransporte' deve ser 0 ou 1."
-                });
-            }
+
+
 
             // Extrai o id do cargo corretamente
             int cargoId = funcionarioElem.GetProperty("cargo").GetProperty("idCargo").GetInt32();
@@ -131,7 +125,9 @@ namespace Api.Control
             string email = funcionarioElem.GetProperty("email").GetString() ?? "";
             string senha = funcionarioElem.GetProperty("senha").GetString() ?? "";
             int recebeValeTransporte = funcionarioElem.GetProperty("recebeValeTransporte").GetInt32();
-            int cargoId = funcionarioElem.GetProperty("idCargo").GetInt32();
+
+            // Extrai o id do cargo corretamente
+            int cargoId = funcionarioElem.GetProperty("cargo").GetProperty("idCargo").GetInt32();
 
             bool atualizou = await _funcionarioService.UpdateFuncionario(idFuncionario, nome, email, senha, recebeValeTransporte, cargoId);
 

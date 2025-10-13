@@ -96,7 +96,7 @@ namespace Api.DAO
             cmd.Parameters.AddWithValue("@email", objFuncionario.Email);
             cmd.Parameters.AddWithValue("@senha", objFuncionario.Senha);
             cmd.Parameters.AddWithValue("@recebeValeTransporte", objFuncionario.RecebeValeTransporte);
-            cmd.Parameters.AddWithValue("@Cargo_idCargo", objFuncionario.Cargo);
+            cmd.Parameters.AddWithValue("@Cargo_idCargo", objFuncionario.Cargo.IdCargo);
             cmd.Parameters.AddWithValue("@idFuncionario", objFuncionario.IdFuncionario);
 
             int affectedRows = await cmd.ExecuteNonQueryAsync();
@@ -155,7 +155,7 @@ namespace Api.DAO
             if (!allowedFields.Contains(field))
                 throw new ArgumentException($"Campo inválido para busca: {field}");
 
-            string SQL = $"SELECT * FROM Funcionario WHERE {field} = @value;";
+            string SQL = $"SELECT * FROM Funcionario join cargo on cargo.idcargo = funcionario.cargo_idCargo WHERE {field} = @value;";
 
             List<Funcionario> result = new List<Funcionario>();
 

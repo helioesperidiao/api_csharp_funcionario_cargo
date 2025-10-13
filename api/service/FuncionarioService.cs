@@ -45,9 +45,11 @@ namespace Api.Service
             funcionario.RecebeValeTransporte = recebeValeTransporte;
             funcionario.Cargo.IdCargo = cargoId;
 
+
             // Valida regra de negócio: não permitir emails duplicados
             List<Funcionario> resultado = await _funcionarioDAO.FindByField("email", funcionario.Email);
 
+                       
             if (resultado.Count > 0)
             {
                 throw new ErrorResponse(
