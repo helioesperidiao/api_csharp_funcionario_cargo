@@ -1,26 +1,27 @@
-using Api.DAO;
+
+
+using Api.Dao;
 using Api.Service;
 using Api.Database;
 using Api.Middleware;
-
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
-
-
 
 // Cria o builder da aplicação
 WebApplicationBuilder builder = WebApplication.CreateBuilder();
-
 // Configura Kestrel para escutar **somente na porta 8080**
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8080); // Jamais rodar em outra porta
+    options.ListenAnyIP(8080); // rodar na porta 8080
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
 // Registra dependencias no container DI
-
 //registra dependencia de banco de dados
 builder.Services.AddSingleton<MySqlDatabase>(serviceProvider =>
 {
@@ -34,15 +35,6 @@ builder.Services.AddSingleton<MySqlDatabase>(serviceProvider =>
     );
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
-});
-
-
 //registra dependencia de DAOs e Services de Cargo
 builder.Services.AddSingleton<CargoDAO>();
 builder.Services.AddSingleton<CargoService>();
@@ -55,10 +47,12 @@ builder.Services.AddSingleton<FuncionarioService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+/*
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+*/
 
 // Constrói a aplicação
 WebApplication app = builder.Build();

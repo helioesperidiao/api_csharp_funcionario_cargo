@@ -6,22 +6,43 @@ using System.Text.Json;
 
 namespace Api.Control
 {
+    /// <summary>
+    /// Controlador responsável pelo gerenciamento de cargos.
+    /// Fornece endpoints para criar, listar, atualizar e excluir cargos no sistema.
+    /// </summary>
     [ApiController]
     [Route("api/v1/cargos")]
-    [ValidateToken]
+    [ValidateToken] // Middleware personalizado para validar o token JWT em todas as requisições
     public class CargoController : ControllerBase
     {
         private readonly CargoService _cargoService;
-        
+
+        /// <summary>
+        /// Construtor do controlador CargoController.
+        /// Recebe o serviço de cargos via injeção de dependência.
+        /// </summary>
+        /// <param name="cargoService">Serviço responsável pela lógica de negócio dos cargos.</param>
         public CargoController(CargoService cargoService)
         {
             Console.WriteLine("⬆️ CargoController.CargoController()");
             this._cargoService = cargoService;
         }
 
+        // ============================================================
         // GET: api/v1/cargos
+        // ============================================================
+
+        /// <summary>
+        /// Retorna a lista de todos os cargos cadastrados no sistema.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de requisição:
+        /// 
+        ///     GET /api/v1/cargos
+        /// 
+        /// </remarks>
+        /// <response code="200">Retorna todos os cargos encontrados.</response>
         [HttpGet]
-        
         public async Task<IActionResult> Index()
         {
             Console.WriteLine("🔵 CargoController.Index()");
@@ -35,10 +56,18 @@ namespace Api.Control
             };
 
             return Ok(resposta);
-
         }
 
+        // ============================================================
         // GET: api/v1/cargos/{id}
+        // ============================================================
+
+        /// <summary>
+        /// Retorna os dados de um cargo específico, baseado no ID fornecido.
+        /// </summary>
+        /// <param name="idCargo">ID do cargo a ser buscado.</param>
+        /// <response code="200">Cargo encontrado e retornado com sucesso.</response>
+        /// <response code="404">Cargo não encontrado.</response>
         [HttpGet("{idCargo}")]
         [ValidateCargoId]
         public async Task<IActionResult> Show(int idCargo)
@@ -59,30 +88,39 @@ namespace Api.Control
                 message = "Executado com sucesso",
                 data = new { cargos = cargosArray }
             };
-
             return Ok(resposta);
-
         }
 
+        // ============================================================
         // POST: api/v1/cargos
+        // ============================================================
+
+        /// <summary>
+        /// Cria um novo cargo no sistema.
+        /// </summary>
+        /// <param name="requestBody">
+        /// Corpo JSON contendo o nome do cargo a ser criado.
+        /// Exemplo:
+        /// 
+        /// { "cargo": { "nomeCargo": "Gerente de Projetos" } }
+        /// </param>
+        /// <response code="201">Cargo criado com sucesso.</response>
+        /// <response code="400">Requisição inválida ou dados ausentes.</response>
         [HttpPost]
         [ValidateCargoBody]
         public async Task<IActionResult> Store([FromBody] JsonElement requestBody)
         {
             Console.WriteLine("🔵 CargoController.Store()");
-            // Extrai o objeto "cargo" do corpo da requisição
             requestBody.TryGetProperty("cargo", out JsonElement cargoElem);
-
-            // Extrai o nome do cargo
             string nomeCargo = cargoElem.GetProperty("nomeCargo").GetString() ?? "";
 
-            // Cria o cargo e obtém o ID gerado
             int novoId = await _cargoService.CreateCargo(nomeCargo);
 
-            // Monta o objeto de retorno
-            Cargo novoCargo = new Cargo();
-            novoCargo.IdCargo = novoId;
-            novoCargo.NomeCargo = nomeCargo;
+            Cargo novoCargo = new Cargo
+            {
+                IdCargo = novoId,
+                NomeCargo = nomeCargo
+            };
 
             object[] cargosArray = new object[] { novoCargo };
 
@@ -93,11 +131,25 @@ namespace Api.Control
                 data = new { cargos = cargosArray }
             };
 
-            // Retorna 201 Created com os dados do novo cargo
             return StatusCode(201, resposta);
         }
 
+        // ============================================================
         // PUT: api/v1/cargos/{id}
+        // ============================================================
+
+        /// <summary>
+        /// Atualiza os dados de um cargo existente.
+        /// </summary>
+        /// <param name="idCargo">ID do cargo a ser atualizado.</param>
+        /// <param name="requestBody">
+        /// Corpo JSON contendo o novo nome do cargo.
+        /// Exemplo:
+        /// 
+        /// { "cargo": { "nomeCargo": "Supervisor de Produção" } }
+        /// </param>
+        /// <response code="200">Cargo atualizado com sucesso.</response>
+        /// <response code="404">Cargo não encontrado.</response>
         [HttpPut("{idCargo}")]
         [ValidateCargoBody]
         public async Task<IActionResult> Update(int idCargo, [FromBody] JsonElement requestBody)
@@ -120,7 +172,6 @@ namespace Api.Control
 
             if (atualizou)
             {
-
                 object resposta = new
                 {
                     success = true,
@@ -143,21 +194,24 @@ namespace Api.Control
             }
         }
 
-
-
+        // ============================================================
         // DELETE: api/v1/cargos/{id}
+        // ============================================================
+
+        /// <summary>
+        /// Remove um cargo existente pelo seu ID.
+        /// </summary>
+        /// <param name="idCargo">ID do cargo a ser removido.</param>
+        /// <response code="204">Cargo removido com sucesso.</response>
+        /// <response code="404">Cargo não encontrado.</response>
         [HttpDelete("{idCargo}")]
         public async Task<IActionResult> Destroy(int idCargo)
         {
             Console.WriteLine("🔵 CargoController.Destroy()");
             bool excluiu = await _cargoService.DeleteCargo(idCargo);
 
-            Cargo cargoExcluido = new Cargo
-            {
-                IdCargo = idCargo
-            };
-
-            object[] cargosArray = new object[] { cargoExcluido };
+            Cargo cargoExcluido = new Cargo();
+            cargoExcluido.IdCargo = idCargo;
 
             if (excluiu)
             {
@@ -165,6 +219,7 @@ namespace Api.Control
             }
             else
             {
+                Cargo[] cargosArray = new Cargo[] { cargoExcluido };
                 object resposta = new
                 {
                     success = false,
@@ -174,10 +229,6 @@ namespace Api.Control
 
                 return NotFound(resposta);
             }
-
         }
-
-
-        
     }
 }

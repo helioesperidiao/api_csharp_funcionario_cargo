@@ -6,7 +6,7 @@ using MySqlConnector;
 using Api.Database;
 using Api.Model;
 
-namespace Api.DAO
+namespace Api.Dao
 {
     /// <summary>
     /// Classe responsável por realizar operações no banco de dados
