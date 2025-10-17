@@ -45,7 +45,7 @@ namespace Api.Database
         {
             if (_pool == null)
             {
-                var connString = new MySqlConnectionStringBuilder
+                String connString = new MySqlConnectionStringBuilder
                 {
                     Server = _host,
                     UserID = _user,
@@ -61,7 +61,7 @@ namespace Api.Database
                 // Testa conexão inicial
                 try
                 {
-                    using var testConn = new MySqlConnection(connString);
+                    using MySqlConnection testConn = new MySqlConnection(connString);
                     await testConn.OpenAsync();
                     Console.WriteLine("⬆️  Conectado ao MySQL com sucesso!");
                 }
@@ -72,7 +72,7 @@ namespace Api.Database
                 }
             }
 
-            var conn = _pool.GetConnection();
+            MySqlConnection  conn = _pool.GetConnection();
             if (conn.State != System.Data.ConnectionState.Open)
             {
                 await conn.OpenAsync(); // garante que a conexão esteja aberta

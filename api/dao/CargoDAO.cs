@@ -11,6 +11,9 @@ namespace Api.Dao
     /// <summary>
     /// Classe responsável por realizar operações no banco de dados
     /// relacionadas à entidade Cargo.
+    /// 
+    /// 🔹 Padrão utilizado: DAO (Data Access Object)
+    /// O objetivo é isolar toda a lógica de acesso ao banco de dados.
     /// </summary>
     public class CargoDAO
     {
@@ -18,39 +21,56 @@ namespace Api.Dao
 
         /// <summary>
         /// Construtor do DAO, recebe a instância de MySqlDatabase.
+        /// Essa instância será usada para obter conexões com o banco.
         /// </summary>
-        /// <param name="databaseInstance">Instância de MySqlDatabase injetada.</param>
         public CargoDAO(MySqlDatabase databaseInstance)
         {
             Console.WriteLine("⬆️  CargoDAO.constructor()");
             _database = databaseInstance ?? throw new ArgumentNullException(nameof(databaseInstance));
         }
 
+        // ============================================================
+        // MÉTODO CREATE
+        // ============================================================
+
         /// <summary>
-        /// Cria um novo cargo no banco de dados.
+        /// Cria (insere) um novo cargo no banco de dados.
         /// </summary>
         public async Task<int> Create(Cargo objCargoModel)
         {
             Console.WriteLine("🟢 CargoDAO.Create()");
 
+            // 1️⃣ Definição do comando SQL (usando parâmetros para evitar SQL Injection)
             string SQL = "INSERT INTO cargo (nomeCargo) VALUES (@nomeCargo);";
 
-            await using var conn = await _database.GetConnection();
-            await using var cmd = new MySqlCommand(SQL, conn);
+            // 2️⃣ Abre uma nova conexão com o banco (método GetConnection já faz o OpenAsync)
+            await using MySqlConnection conn = await _database.GetConnection();
+
+            // 3️⃣ Cria o comando MySQL associando o SQL e a conexão
+            await using MySqlCommand cmd = new MySqlCommand(SQL, conn);
+
+            // 4️⃣ Substitui o parâmetro @nomeCargo pelo valor vindo do objeto Cargo
             cmd.Parameters.AddWithValue("@nomeCargo", objCargoModel.NomeCargo);
 
-            int insertedId = 0;
-
+            // 5️⃣ Executa o comando SQL (INSERT) e não espera retorno de dados (apenas resultado)
             await cmd.ExecuteNonQueryAsync();
-            insertedId = (int)cmd.LastInsertedId;
 
+            // 6️⃣ Obtém o ID gerado automaticamente no banco (auto_increment)
+            int insertedId = (int)cmd.LastInsertedId;
+
+            // 7️⃣ Validação básica — se o ID não for gerado, algo deu errado
             if (insertedId <= 0)
             {
                 throw new Exception("Falha ao inserir cargo");
             }
 
+            // 8️⃣ Retorna o ID do novo registro inserido
             return insertedId;
         }
+
+        // ============================================================
+        // MÉTODO DELETE
+        // ============================================================
 
         /// <summary>
         /// Remove um cargo do banco de dados pelo ID.
@@ -59,15 +79,26 @@ namespace Api.Dao
         {
             Console.WriteLine("🟢 CargoDAO.Delete()");
 
+            // 1️⃣ Comando SQL com filtro pelo idCargo
             string SQL = "DELETE FROM cargo WHERE idCargo = @idCargo;";
 
-            await using var conn = await _database.GetConnection();
-            await using var cmd = new MySqlCommand(SQL, conn);
+            // 2️⃣ Criação da conexão e comando SQL
+            await using MySqlConnection conn = await _database.GetConnection();
+            await using MySqlCommand cmd = new MySqlCommand(SQL, conn);
+
+            // 3️⃣ Substitui o parâmetro pelo valor do objeto Cargo
             cmd.Parameters.AddWithValue("@idCargo", objCargoModel.IdCargo);
 
+            // 4️⃣ Executa o comando e retorna o número de linhas afetadas
             int affectedRows = await cmd.ExecuteNonQueryAsync();
+
+            // 5️⃣ Retorna true se ao menos uma linha foi excluída
             return affectedRows > 0;
         }
+
+        // ============================================================
+        // MÉTODO UPDATE
+        // ============================================================
 
         /// <summary>
         /// Atualiza os dados de um cargo existente.
@@ -76,16 +107,27 @@ namespace Api.Dao
         {
             Console.WriteLine("🟢 CargoDAO.Update()");
 
+            // 1️⃣ SQL de atualização
             string SQL = "UPDATE cargo SET nomeCargo = @nomeCargo WHERE idCargo = @idCargo;";
 
-            await using var conn = await _database.GetConnection();
-            await using var cmd = new MySqlCommand(SQL, conn);
+            // 2️⃣ Conexão e comando
+            await using MySqlConnection conn = await _database.GetConnection();
+            await using MySqlCommand cmd = new MySqlCommand(SQL, conn);
+
+            // 3️⃣ Substitui parâmetros pelos valores do objeto
             cmd.Parameters.AddWithValue("@nomeCargo", objCargoModel.NomeCargo);
             cmd.Parameters.AddWithValue("@idCargo", objCargoModel.IdCargo);
 
+            // 4️⃣ Executa o UPDATE
             int affectedRows = await cmd.ExecuteNonQueryAsync();
+
+            // 5️⃣ Retorna true se a atualização afetou pelo menos uma linha
             return affectedRows > 0;
         }
+
+        // ============================================================
+        // MÉTODO FIND ALL
+        // ============================================================
 
         /// <summary>
         /// Retorna todos os cargos cadastrados no banco de dados.
@@ -93,65 +135,93 @@ namespace Api.Dao
         public async Task<List<Cargo>> FindAll()
         {
             Console.WriteLine("🟢 CargoDAO.FindAll()");
+
+            // 1️⃣ Comando SQL para buscar todos os cargos
             string SQL = "SELECT * FROM cargo;";
 
+            // 2️⃣ Lista onde serão armazenados os resultados
             List<Cargo> result = new List<Cargo>();
 
-            await using var conn = await _database.GetConnection();
-            await using var cmd = new MySqlCommand(SQL, conn);
-            await using var reader = await cmd.ExecuteReaderAsync();
+            // 3️⃣ Criação da conexão, comando e leitor de dados
+            await using MySqlConnection conn = await _database.GetConnection();
+            await using MySqlCommand cmd = new MySqlCommand(SQL, conn);
+            await using MySqlDataReader registros = await cmd.ExecuteReaderAsync();
 
-            while (await reader.ReadAsync())
+            // 4️⃣ Percorre cada linha retornada pelo SELECT
+            while (await registros.ReadAsync())
             {
+                // Cria um objeto Cargo e preenche com os dados do banco
                 Cargo linha = new Cargo();
-                linha.IdCargo = reader.GetInt32("idCargo");
-                linha.NomeCargo = reader.GetString("nomeCargo");
-                result.Add(linha);
+                linha.IdCargo = registros.GetInt32("idCargo");
+                linha.NomeCargo = registros.GetString("nomeCargo");
 
+                // Adiciona o objeto na lista
+                result.Add(linha);
             }
 
+            // 5️⃣ Retorna a lista de cargos preenchida
             return result;
         }
 
+        // ============================================================
+        // MÉTODO FIND BY ID
+        // ============================================================
+
         /// <summary>
-        /// Busca um cargo pelo ID.
+        /// Busca um cargo específico pelo seu ID.
         /// </summary>
         public async Task<Cargo?> FindById(int idCargo)
         {
             Console.WriteLine("🟢 CargoDAO.FindById()");
-            var results = await FindByField("idCargo", idCargo);
-            return results.Count > 0 ? results[0] : null;
+
+            // 🔸 Reutiliza o método genérico FindByField para não repetir código
+            List<Cargo> listaCargos = await FindByField("idCargo", idCargo);
+
+            // 🔸 Retorna o primeiro item, ou null se não encontrar
+            return listaCargos.Count > 0 ? listaCargos[0] : null;
         }
 
+        // ============================================================
+        // MÉTODO FIND BY FIELD
+        // ============================================================
+
         /// <summary>
-        /// Busca cargos por um campo específico.
+        /// Busca cargos por um campo específico (idCargo ou nomeCargo).
         /// </summary>
         public async Task<List<Cargo>> FindByField(string field, object value)
         {
             Console.WriteLine($"🟢 CargoDAO.FindByField() - Campo: {field}, Valor: {value}");
 
-            var allowedFields = new HashSet<string> { "idCargo", "nomeCargo" };
+            // 1️⃣ Validação do campo para evitar SQL Injection
+            HashSet<string> allowedFields = new HashSet<string> { "idCargo", "nomeCargo" };
             if (!allowedFields.Contains(field))
                 throw new ArgumentException($"Campo inválido para busca: {field}");
 
+            // 2️⃣ Monta a query dinamicamente com o campo válido
             string SQL = $"SELECT * FROM cargo WHERE {field} = @value;";
 
-            List<Cargo> result = new List<Cargo>();
+            // 3️⃣ Lista para armazenar os resultados
+            List<Cargo> listaCargos = new List<Cargo>();
 
-            await using var conn = await _database.GetConnection();
-            await using var cmd = new MySqlCommand(SQL, conn);
+            // 4️⃣ Cria a conexão e o comando SQL
+            await using MySqlConnection conn = await _database.GetConnection();
+            await using MySqlCommand cmd = new MySqlCommand(SQL, conn);
             cmd.Parameters.AddWithValue("@value", value);
 
-            await using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
+            // 5️⃣ Executa o SELECT e lê os registros retornados
+            await using MySqlDataReader registros = await cmd.ExecuteReaderAsync();
+
+            while (await registros.ReadAsync())
             {
-                Cargo linha = new Cargo();
-                linha.IdCargo = reader.GetInt32("idCargo");
-                linha.NomeCargo = reader.GetString("nomeCargo");
-                result.Add(linha);
+                // Monta o objeto Cargo a partir dos dados do banco
+                Cargo cargo = new Cargo();
+                cargo.IdCargo = registros.GetInt32("idCargo");
+                cargo.NomeCargo = registros.GetString("nomeCargo");
+                listaCargos.Add(cargo);
             }
 
-            return result;
+            // 6️⃣ Retorna a lista de cargos encontrados
+            return listaCargos;
         }
     }
 }

@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
-using Api.Service;
-using Api.Filters;
-using Api.Model;
+
 using System.Text.Json;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Api.Utils;
-
+using Microsoft.AspNetCore.Mvc;
+using Api.Service;
+using Api.Filters;
+using Api.Model;
 namespace Api.Control
 {
     /// <summary>
@@ -266,10 +266,10 @@ namespace Api.Control
             string senha = funcionarioElem.GetProperty("senha").GetString() ?? "";
 
             // Valida o login via serviço
-            var resultadoFuncionario = await _funcionarioService.LoginFuncionario(email, senha);
+            Usuario usuario = await _funcionarioService.LoginFuncionario(email, senha);
 
             // Caso não encontre, retorna 401
-            if (resultadoFuncionario == null)
+            if (usuario.Token == "")
             {
                 return Unauthorized(new
                 {
@@ -283,7 +283,7 @@ namespace Api.Control
             {
                 success = true,
                 message = "Login efetuado com sucesso!",
-                data = resultadoFuncionario
+                data = usuario
             });
         }
     }

@@ -9,35 +9,36 @@ namespace Api.Service
 {
     /// <summary>
     /// Classe responsável pela camada de serviço para a entidade Funcionario.
+    /// 🔹 Separa regras de negócio da camada de persistência (DAO).
+    /// 🔹 Ideal para adicionar validações, verificações e lógica de autenticação.
     /// </summary>
     public class FuncionarioService
     {
+        // 1️⃣ Atributo privado para acessar o DAO
         private readonly FuncionarioDAO _funcionarioDAO;
 
         /// <summary>
         /// Construtor com injeção de dependência do DAO.
+        /// 🔹 Permite desacoplar a camada de serviço do DAO.
         /// </summary>
-        /// <param name="funcionarioDAODependency">Instância de FuncionarioDAO</param>
         public FuncionarioService(FuncionarioDAO funcionarioDAODependency)
         {
             Console.WriteLine("⬆️  FuncionarioService.constructor()");
+
+            // 2️⃣ Valida e atribui o DAO
             _funcionarioDAO = funcionarioDAODependency ?? throw new ArgumentNullException(nameof(funcionarioDAODependency));
         }
 
         /// <summary>
         /// Cria um novo funcionário
+        /// 🔹 Valida regras de domínio (setters do modelo)
+        /// 🔹 Verifica duplicidade de email
         /// </summary>
-        /// <param name="nome">Nome do funcionário</param>
-        /// <param name="email">Email</param>
-        /// <param name="senha">Senha</param>
-        /// <param name="recebeValeTransporte">Se recebe VT</param>
-        /// <param name="cargoId">ID do cargo</param>
-        /// <returns>ID do funcionário criado</returns>
-        /// <exception cref="ErrorResponse">Se o email já existir</exception>
         public async Task<int> CreateFuncionario(string nome, string email, string senha, int recebeValeTransporte, int cargoId)
         {
             Console.WriteLine("🟣 FuncionarioService.CreateFuncionario()");
 
+            // 3️⃣ Cria objeto Funcionario e aplica validações do modelo
             Funcionario funcionario = new Funcionario();
             funcionario.NomeFuncionario = nome;
             funcionario.Email = email;
@@ -45,11 +46,8 @@ namespace Api.Service
             funcionario.RecebeValeTransporte = recebeValeTransporte;
             funcionario.Cargo.IdCargo = cargoId;
 
-
-            // Valida regra de negócio: não permitir emails duplicados
+            // 4️⃣ Valida regra de negócio: não permitir emails duplicados
             List<Funcionario> resultado = await _funcionarioDAO.FindByField("email", funcionario.Email);
-
-                       
             if (resultado.Count > 0)
             {
                 throw new ErrorResponse(
@@ -59,11 +57,13 @@ namespace Api.Service
                 );
             }
 
+            // 5️⃣ Chama DAO para inserir no banco
             return await _funcionarioDAO.Create(funcionario);
         }
 
         /// <summary>
         /// Retorna todos os funcionários
+        /// 🔹 Simples delegação ao DAO
         /// </summary>
         public async Task<List<Funcionario>> FindAll()
         {
@@ -73,19 +73,21 @@ namespace Api.Service
 
         /// <summary>
         /// Retorna um funcionário por ID
+        /// 🔹 Aplica validação do modelo antes de consultar
         /// </summary>
         public async Task<Funcionario?> FindById(int idFuncionario)
         {
             Console.WriteLine("🟣 FuncionarioService.FindById()");
 
             Funcionario funcionario = new Funcionario();
-            funcionario.IdFuncionario = idFuncionario; // valida regra de domínio
+            funcionario.IdFuncionario = idFuncionario; // dispara validação do IdFuncionario
 
             return await _funcionarioDAO.FindById(funcionario.IdFuncionario);
         }
 
         /// <summary>
         /// Atualiza um funcionário existente
+        /// 🔹 Aplica validação de campos do modelo antes de chamar DAO
         /// </summary>
         public async Task<bool> UpdateFuncionario(int idFuncionario, string nome, string email, string senha, int recebeValeTransporte, int cargoId)
         {
@@ -104,38 +106,36 @@ namespace Api.Service
 
         /// <summary>
         /// Deleta um funcionário por ID
+        /// 🔹 Valida ID antes de chamar DAO
         /// </summary>
         public async Task<bool> DeleteFuncionario(int idFuncionario)
         {
             Console.WriteLine("🟣 FuncionarioService.DeleteFuncionario()");
 
             Funcionario funcionario = new Funcionario();
-            funcionario.IdFuncionario = idFuncionario; // valida regra de domínio
+            funcionario.IdFuncionario = idFuncionario; // dispara validação do IdFuncionario
 
             return await _funcionarioDAO.Delete(funcionario);
         }
 
-        //LoginFuncionario
-
-         /// <summary>
+        /// <summary>
         /// Autentica um funcionário pelo email e senha
+        /// 🔹 Verifica se o usuário existe e valida senha
+        /// 🔹 Gera token JWT e retorna objeto Usuario
         /// </summary>
-        /// <param name="email">Email do funcionário</param>
-        /// <param name="senha">Senha do funcionário</param>
-        /// <returns>Objeto contendo dados do funcionário e token JWT</returns>
-        /// <exception cref="ErrorResponse">Se email ou senha estiverem incorretos</exception>
-        public async Task<object> LoginFuncionario(string email, string senha)
+        public async Task<Usuario> LoginFuncionario(string email, string senha)
         {
             Console.WriteLine("🟣 FuncionarioService.LoginFuncionario()");
 
-            // Cria objeto Funcionario apenas para consulta
+            // 6️⃣ Cria objeto Funcionario apenas para consulta
             Funcionario funcionario = new Funcionario();
             funcionario.Email = email;
             funcionario.Senha = senha;
 
-            // Consulta no DAO
+            // 7️⃣ Consulta no DAO
             Funcionario encontrado = await _funcionarioDAO.Login(funcionario);
-            
+
+            // 8️⃣ Se não encontrado, lança erro de autenticação
             if (encontrado == null)
             {
                 throw new ErrorResponse(
@@ -145,35 +145,24 @@ namespace Api.Service
                 );
             }
 
-            // Geração de token JWT
+            // 9️⃣ Geração de token JWT com informações do usuário
             MeuTokenJWT jwt = new MeuTokenJWT();
-            var claims = new Dictionary<string, object>
+            string token = jwt.GerarToken(new Dictionary<string, object>
             {
                 { "email", encontrado.Email },
                 { "role", encontrado.Cargo?.NomeCargo ?? "" },
                 { "name", encontrado.NomeFuncionario ?? "" },
                 { "idFuncionario", encontrado.IdFuncionario.ToString() }
-            };
+            });
 
-            string token = jwt.GerarToken(claims);
+            // 🔟 Monta objeto Usuario para retorno
+            Usuario usuario = new Usuario();
+            usuario.Cargo = encontrado.Cargo;
+            usuario.IdFuncionario = encontrado.IdFuncionario;
+            usuario.NomeFuncionario = encontrado.NomeFuncionario;
+            usuario.Token = token;
 
-            // Monta o objeto de retorno
-            var user = new
-            {
-                funcionario = new
-                {
-                    email = encontrado.Email,
-                    role = encontrado.Cargo?.NomeCargo,
-                    name = encontrado.NomeFuncionario,
-                    idFuncionario = encontrado.IdFuncionario
-                }
-            };
-
-            return new
-            {
-                user,
-                token
-            };
+            return usuario;
         }
     }
 }

@@ -5,14 +5,27 @@ using System;
 
 namespace Api.Filters
 {
+    /// <summary>
+    /// Filtro de ação responsável por validar o corpo da requisição
+    /// para operações relacionadas à entidade Funcionario.
+    /// 
+    /// 🔹 ActionFilterAttribute permite executar lógica antes ou depois
+    /// de um endpoint do controller ser chamado.
+    /// </summary>
     public class ValidateFuncionarioBody : ActionFilterAttribute
     {
+        /// <summary>
+        /// Executado antes do método do controller.
+        /// Valida se o corpo da requisição contém o objeto funcionario
+        /// e se os campos obrigatórios estão presentes e corretos.
+        /// </summary>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             Console.WriteLine("🔶 ValidateFuncionarioBody.OnActionExecuting()");
 
-            // Verifica se o corpo da requisição existe
-            if (!context.ActionArguments.TryGetValue("requestBody", out var bodyObj) || bodyObj == null)
+            // 1️⃣ Verifica se o ActionArguments contém o corpo da requisição
+            // "requestBody" é o nome do parâmetro esperado no controller
+            if (!context.ActionArguments.TryGetValue("requestBody", out var jsonBody) || jsonBody == null)
             {
                 throw new ErrorResponse(
                     400,
@@ -21,8 +34,8 @@ namespace Api.Filters
                 );
             }
 
-            // Converte para JsonElement
-            if (bodyObj is not JsonElement json)
+            // 2️⃣ Converte o objeto recebido para JsonElement para manipulação
+            if (jsonBody is not JsonElement json)
             {
                 throw new ErrorResponse(
                     400,
@@ -31,7 +44,7 @@ namespace Api.Filters
                 );
             }
 
-            // Verifica propriedade "funcionario"
+            // 3️⃣ Verifica se existe a propriedade "funcionario" no JSON
             if (!json.TryGetProperty("funcionario", out JsonElement funcElem))
             {
                 throw new ErrorResponse(
@@ -41,7 +54,7 @@ namespace Api.Filters
                 );
             }
 
-            // Valida "nomeFuncionario"
+            // 4️⃣ Valida campo obrigatório "nomeFuncionario"
             if (!funcElem.TryGetProperty("nomeFuncionario", out JsonElement nomeElem) ||
                 string.IsNullOrWhiteSpace(nomeElem.GetString()))
             {
@@ -52,7 +65,7 @@ namespace Api.Filters
                 );
             }
 
-            // Valida "email"
+            // 5️⃣ Valida campo obrigatório "email"
             if (!funcElem.TryGetProperty("email", out JsonElement emailElem) ||
                 string.IsNullOrWhiteSpace(emailElem.GetString()))
             {
@@ -63,7 +76,7 @@ namespace Api.Filters
                 );
             }
 
-            // Valida "senha"
+            // 6️⃣ Valida campo obrigatório "senha"
             if (!funcElem.TryGetProperty("senha", out JsonElement senhaElem) ||
                 string.IsNullOrWhiteSpace(senhaElem.GetString()))
             {
@@ -74,7 +87,7 @@ namespace Api.Filters
                 );
             }
 
-            // Valida "recebeValeTransporte" como 0 ou 1
+            // 7️⃣ Valida campo "recebeValeTransporte" como número 0 ou 1
             if (!funcElem.TryGetProperty("recebeValeTransporte", out JsonElement vtElem) ||
                 vtElem.ValueKind != JsonValueKind.Number)
             {
@@ -85,7 +98,7 @@ namespace Api.Filters
                 );
             }
 
-            // Valida "cargo.idCargo"
+            // 8️⃣ Valida campo "cargo.idCargo" como inteiro positivo
             if (!funcElem.TryGetProperty("cargo", out JsonElement cargoElem) ||
                 !cargoElem.TryGetProperty("idCargo", out JsonElement idCargoElem) ||
                 idCargoElem.ValueKind != JsonValueKind.Number ||
@@ -98,7 +111,8 @@ namespace Api.Filters
                 );
             }
 
-            // Todos os campos obrigatórios presentes e válidos
+            // 9️⃣ Todos os campos obrigatórios presentes e válidos
+            // 🔹 Fluxo segue para o controller se nenhuma exceção for lançada
         }
     }
 }
