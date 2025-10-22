@@ -144,10 +144,11 @@ namespace Api.Service
                     new { message = "Não foi possível realizar autenticação" }
                 );
             }
+         
 
-            // 9️⃣ Geração de token JWT com informações do usuário
-            MeuTokenJWT jwt = new MeuTokenJWT();
-            string token = jwt.GerarToken(new Dictionary<string, object>
+                // 9️⃣ Geração de token JWT com informações do usuário
+                MeuTokenJWT jwt = new MeuTokenJWT();
+                string token = jwt.GerarToken(new Dictionary<string, object>
             {
                 { "email", encontrado.Email },
                 { "role", encontrado.Cargo?.NomeCargo ?? "" },
@@ -155,14 +156,15 @@ namespace Api.Service
                 { "idFuncionario", encontrado.IdFuncionario.ToString() }
             });
 
-            // 🔟 Monta objeto Usuario para retorno
-            Usuario usuario = new Usuario();
-            usuario.Cargo = encontrado.Cargo;
-            usuario.IdFuncionario = encontrado.IdFuncionario;
-            usuario.NomeFuncionario = encontrado.NomeFuncionario;
-            usuario.Token = token;
+                // 🔟 Monta objeto Usuario para retorno
+                Usuario usuario = new Usuario();
+                usuario.Cargo = encontrado.Cargo;
+                usuario.IdFuncionario = encontrado.IdFuncionario;
+                usuario.NomeFuncionario = encontrado.NomeFuncionario;
+                usuario.Token = token;
 
-            return usuario;
+                return usuario;
+            
         }
     }
 }
