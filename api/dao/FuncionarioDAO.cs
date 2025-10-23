@@ -140,7 +140,7 @@ namespace Api.Dao
             string SQL = "SELECT * FROM funcionario JOIN cargo ON cargo.idCargo = funcionario.idFuncionario";
 
             // 2️⃣ Lista que armazenará os registros lidos do banco
-            List<Funcionario> result = new List<Funcionario>();
+            List<Funcionario> listaFuncionarios = new List<Funcionario>();
 
             // 3️⃣ Abre conexão e cria comando
             await using MySqlConnection conn = await _database.GetConnection();
@@ -155,20 +155,19 @@ namespace Api.Dao
                 // 5.1️⃣ Cria objeto Funcionario e preenche seus atributos
                 Funcionario registro = new Funcionario();
                 registro.IdFuncionario = registros.GetInt32("idFuncionario");
-                registro.NomeFuncionario = registros.IsDBNull(registros.GetOrdinal("nomeFuncionario"))
-                    ? "" : registros.GetString("nomeFuncionario");
-                registro.Email = registros.IsDBNull(registros.GetOrdinal("email"))
-                    ? "" : registros.GetString("email");
+                registro.NomeFuncionario = registros.GetString("nomeFuncionario");
+                registro.Email = registros.GetString("email");
                 registro.RecebeValeTransporte = registros.GetInt32("recebeValeTransporte");
+                
                 registro.Cargo.IdCargo = registros.GetInt32("idCargo");
                 registro.Cargo.NomeCargo = registros.GetString("nomeCargo");
 
                 // 5.2️⃣ Adiciona o objeto à lista de resultados
-                result.Add(registro);
+                listaFuncionarios.Add(registro);
             }
 
             // 6️⃣ Retorna a lista completa de funcionários
-            return result;
+            return listaFuncionarios;
         }
 
         // ============================================================

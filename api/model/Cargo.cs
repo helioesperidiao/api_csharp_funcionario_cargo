@@ -25,6 +25,12 @@ namespace Api.Model
         {
             //Console.WriteLine("⬆️  Cargo.constructor()");
         }
+        public void teste()
+        {
+            Cargo c = new Cargo();
+            int id = c.IdCargo;
+            c.IdCargo = 4;
+        }
 
         /// <summary>
         /// Identificador único do cargo

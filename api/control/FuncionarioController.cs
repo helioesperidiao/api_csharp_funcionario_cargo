@@ -113,18 +113,18 @@ namespace Api.Control
             Console.WriteLine("🔵 FuncionarioController.Store()");
 
             // Extrai o objeto "funcionario" do corpo da requisição JSON
-            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioElem);
+            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioJson);
 
             // Extrai os campos básicos
-            string nome = funcionarioElem.GetProperty("nomeFuncionario").GetString() ?? "";
-            string email = funcionarioElem.GetProperty("email").GetString() ?? "";
-            string senha = funcionarioElem.GetProperty("senha").GetString() ?? "";
+            string nome = funcionarioJson.GetProperty("nomeFuncionario").GetString() ?? "";
+            string email = funcionarioJson.GetProperty("email").GetString() ?? "";
+            string senha = funcionarioJson.GetProperty("senha").GetString() ?? "";
 
             // Extrai e valida o campo recebeValeTransporte (0 ou 1)
-            int recebeValeTransporte = funcionarioElem.GetProperty("recebeValeTransporte").GetInt32();
+            int recebeValeTransporte = funcionarioJson.GetProperty("recebeValeTransporte").GetInt32();
 
             // Extrai o ID do cargo associado
-            int cargoId = funcionarioElem.GetProperty("cargo").GetProperty("idCargo").GetInt32();
+            int cargoId = funcionarioJson.GetProperty("cargo").GetProperty("idCargo").GetInt32();
 
             // Chama o serviço para criar o funcionário e obter o novo ID
             int novoId = await _funcionarioService.CreateFuncionario(nome, email, senha, recebeValeTransporte, cargoId);
@@ -168,14 +168,14 @@ namespace Api.Control
             Console.WriteLine("🔵 FuncionarioController.Update()");
 
             // Extrai o objeto "funcionario" do corpo JSON
-            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioElem);
+            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioJson);
 
             // Lê as propriedades enviadas
-            string nome = funcionarioElem.GetProperty("nomeFuncionario").GetString() ?? "";
-            string email = funcionarioElem.GetProperty("email").GetString() ?? "";
-            string senha = funcionarioElem.GetProperty("senha").GetString() ?? "";
-            int recebeValeTransporte = funcionarioElem.GetProperty("recebeValeTransporte").GetInt32();
-            int cargoId = funcionarioElem.GetProperty("cargo").GetProperty("idCargo").GetInt32();
+            string nome = funcionarioJson.GetProperty("nomeFuncionario").GetString() ?? "";
+            string email = funcionarioJson.GetProperty("email").GetString() ?? "";
+            string senha = funcionarioJson.GetProperty("senha").GetString() ?? "";
+            int recebeValeTransporte = funcionarioJson.GetProperty("recebeValeTransporte").GetInt32();
+            int cargoId = funcionarioJson.GetProperty("cargo").GetProperty("idCargo").GetInt32();
 
             // Atualiza o funcionário via serviço
             bool atualizou = await _funcionarioService.UpdateFuncionario(idFuncionario, nome, email, senha, recebeValeTransporte, cargoId);
@@ -261,9 +261,9 @@ namespace Api.Control
             Console.WriteLine("🔵 FuncionarioController.Login()");
 
             // Extrai os dados do JSON
-            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioElem);
-            string email = funcionarioElem.GetProperty("email").GetString() ?? "";
-            string senha = funcionarioElem.GetProperty("senha").GetString() ?? "";
+            requestBody.TryGetProperty("funcionario", out JsonElement funcionarioJson);
+            string email = funcionarioJson.GetProperty("email").GetString() ?? "";
+            string senha = funcionarioJson.GetProperty("senha").GetString() ?? "";
 
             // Valida o login via serviço
             Usuario usuario = await _funcionarioService.LoginFuncionario(email, senha);

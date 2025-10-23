@@ -26,7 +26,7 @@ namespace Api.Dao
         public CargoDAO(MySqlDatabase databaseInstance)
         {
             Console.WriteLine("⬆️  CargoDAO.constructor()");
-            _database = databaseInstance ?? throw new ArgumentNullException(nameof(databaseInstance));
+            _database = databaseInstance;
         }
 
         // ============================================================
@@ -122,7 +122,7 @@ namespace Api.Dao
             int affectedRows = await cmd.ExecuteNonQueryAsync();
 
             // 5️⃣ Retorna true se a atualização afetou pelo menos uma linha
-            return affectedRows > 0;
+            return (affectedRows > 0);
         }
 
         // ============================================================
@@ -140,7 +140,7 @@ namespace Api.Dao
             string SQL = "SELECT * FROM cargo;";
 
             // 2️⃣ Lista onde serão armazenados os resultados
-            List<Cargo> result = new List<Cargo>();
+            List<Cargo> listaCargos = new List<Cargo>();
 
             // 3️⃣ Criação da conexão, comando e leitor de dados
             await using MySqlConnection conn = await _database.GetConnection();
@@ -156,11 +156,11 @@ namespace Api.Dao
                 linha.NomeCargo = registros.GetString("nomeCargo");
 
                 // Adiciona o objeto na lista
-                result.Add(linha);
+                listaCargos.Add(linha);
             }
 
             // 5️⃣ Retorna a lista de cargos preenchida
-            return result;
+            return listaCargos;
         }
 
         // ============================================================

@@ -1,5 +1,3 @@
-
-
 using Api.Dao;
 using Api.Service;
 using Api.Database;
@@ -21,6 +19,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader());
 });
+
 // Registra dependencias no container DI
 //registra dependencia de banco de dados
 builder.Services.AddSingleton<MySqlDatabase>(serviceProvider =>

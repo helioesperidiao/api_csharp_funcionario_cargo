@@ -151,12 +151,12 @@ namespace Api.Control
         /// <response code="200">Cargo atualizado com sucesso.</response>
         /// <response code="404">Cargo não encontrado.</response>
         [HttpPut("{idCargo}")]
+        //[ValidateCargoId]
         [ValidateCargoBody]
         public async Task<IActionResult> Update(int idCargo, [FromBody] JsonElement requestBody)
         {
             Console.WriteLine("🔵 CargoController.Update()");
-            if (!requestBody.TryGetProperty("cargo", out JsonElement cargoElem))
-                throw new Exception("JSON inválido: 'cargo' ausente");
+            requestBody.TryGetProperty("cargo", out JsonElement cargoElem);
 
             string nomeCargo = cargoElem.GetProperty("nomeCargo").GetString() ?? "";
 
@@ -205,6 +205,7 @@ namespace Api.Control
         /// <response code="204">Cargo removido com sucesso.</response>
         /// <response code="404">Cargo não encontrado.</response>
         [HttpDelete("{idCargo}")]
+        [ValidateCargoId]
         public async Task<IActionResult> Destroy(int idCargo)
         {
             Console.WriteLine("🔵 CargoController.Destroy()");
